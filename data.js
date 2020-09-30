@@ -2,7 +2,7 @@ const { fstat } = require('fs');
 const editPath = require('path');
 const fs = require('fs')
 
-const mainDataPath = editPath.join(__dirname, './data/');
+const mainDataPath = editPath.join(__dirname, './.data/');
 
 console.log(mainDataPath)
 
@@ -11,12 +11,14 @@ fileSystem = {};
 
 //lets create an create key which is having function for creation new file and writing data into ir
 //function takes params as required in fs.open,write and close 
-fileSystem.create = (dir, file, bodyData, callback) => {
+fileSystem.create = (dir, file, AnyData, callback) => {
     fs.open(mainDataPath + dir + '/' + file + '.json', 'wx', (err, fd) => {
 
-        if (!err) {
-            const bodyDataInString = JSON.stringify(bodyData);
-            fs.writeFile(fd, bodyDataInString, (err) => {
+        if (!err && fd) {
+            
+            const anyDataString = JSON.stringify(AnyData)
+
+            fs.writeFile(fd, anyDataString, (err) => {
                 if (!err) {
                     fs.close(fd, (err) => {
                         if (!err) {

@@ -5,7 +5,8 @@ const port = 5000;
 const stringDecoder = require('string_decoder').StringDecoder;
 const { parse } = require('querystring')
 
-
+const handlers = require('./routehandlers');
+const { join } = require('path');
 
 
 const server = http.createServer((req, res) => {
@@ -14,20 +15,41 @@ const server = http.createServer((req, res) => {
     const searchParameters = urlElements.query;
     const requestType = req.method.toLowerCase();
     const headersVariables = req.headers;
-    console.log(headersVariables);
+   
+    const decoder = new stringDecoder('utf-8');
 
     let bodyData = "";
 
     req.on('data', (dataComingFromBody) => {
-        bodyData = bodyData + dataComingFromBody.toString();
+        bodyData = bodyData + decoder.write(dataComingFromBody);
 
     })
+  
 
     req.on('end', () => {
+        bodyData = bodyData + decoder.end();
+        const selecthandler = typeof(routes[path]) != "undefined"? routes[path] : handlers.notFound;
 
-     
-        console.log(typeof (bodyData));
-        res.end(bodyData);
+        const data = {
+
+            'path': path,
+            'method': requestType,
+            'headers': headersVariables ,
+            'payload': JSON.parse(bodyData)
+        }
+        
+      
+        selecthandler(data, (statusCode, bodyData) =>{
+                  
+         
+            statusCode = typeof(statusCode) == 'number' ? statusCode : 200;
+            res.setHeader('Content-Type', 'application/json');
+            payloadString = JSON.stringify(bodyData);
+            res.writeHead(statusCode);
+            res.end(payloadString);
+           
+        })
+      
     })
 
 });
@@ -38,8 +60,17 @@ server.listen(port, () => {
 
 //users, hobby,age
 
-routes = {
+const routes = {
     '/users' : handlers.users,
     '/hobby' : handlers.hobby,
     '/age' : handlers.age
 }
+
+
+
+
+handlers.notFound = (data, callback) => {
+    callback(404, { "Status": "Not Found" });
+}
+
+
