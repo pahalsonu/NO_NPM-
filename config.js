@@ -12,7 +12,7 @@ config.hash = (str) => {
     } else {
         return false;
     }
-   
+
 }
-        
+
 module.exports = config 

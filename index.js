@@ -15,7 +15,7 @@ const server = http.createServer((req, res) => {
     const searchParameters = urlElements.query;
     const requestType = req.method.toLowerCase();
     const headersVariables = req.headers;
-   
+
     const decoder = new stringDecoder('utf-8');
 
     let bodyData = "";
@@ -24,32 +24,33 @@ const server = http.createServer((req, res) => {
         bodyData = bodyData + decoder.write(dataComingFromBody);
 
     })
-  
+
 
     req.on('end', () => {
         bodyData = bodyData + decoder.end();
-        const selecthandler = typeof(routes[path]) != "undefined"? routes[path] : handlers.notFound;
+        const selecthandler = typeof (routes[path]) != "undefined" ? routes[path] : handlers.notFound;
 
         const data = {
 
             'path': path,
             'method': requestType,
-            'headers': headersVariables ,
-            'payload': JSON.parse(bodyData)
+            'headers': headersVariables,
+            'payload': JSON.parse(bodyData),
+            "searchParameters": searchParameters
         }
-        
-      
-        selecthandler(data, (statusCode, bodyData) =>{
-                  
-         
-            statusCode = typeof(statusCode) == 'number' ? statusCode : 200;
+
+
+        selecthandler(data, (statusCode, bodyData) => {
+
+
+            statusCode = typeof (statusCode) == 'number' ? statusCode : 200;
             res.setHeader('Content-Type', 'application/json');
             payloadString = JSON.stringify(bodyData);
             res.writeHead(statusCode);
             res.end(payloadString);
-           
+
         })
-      
+
     })
 
 });
@@ -61,9 +62,9 @@ server.listen(port, () => {
 //users, hobby,age
 
 const routes = {
-    '/users' : handlers.users,
-    '/hobby' : handlers.hobby,
-    '/age' : handlers.age
+    '/users': handlers.users,
+    '/hobby': handlers.hobby,
+    '/age': handlers.age
 }
 
 
